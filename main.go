@@ -40,9 +40,9 @@ func main() {
 	mux := http.NewServeMux()
 	mdwHandler := cfg.middlewareMetricsInc(http.FileServer(http.Dir(filepathRoot)))
 	mux.Handle("/app/", http.StripPrefix("/app", mdwHandler))
-	mux.HandleFunc("GET /healthz", handlerReadiness)
-	mux.HandleFunc("GET /metrics", cfg.countRequestsHandler)
-	mux.HandleFunc("/reset", cfg.resetHandler)
+	mux.HandleFunc("GET /api/healthz", handlerReadiness)
+	mux.HandleFunc("GET /api/metrics", cfg.countRequestsHandler)
+	mux.HandleFunc("GET /api/reset", cfg.resetHandler)
 
 	srv := &http.Server{
 		Addr:    ":" + port,
