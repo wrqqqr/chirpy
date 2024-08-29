@@ -1,9 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
-	"strconv"
 )
 
 type apiConfig struct {
@@ -18,10 +18,17 @@ func (cfg *apiConfig) middlewareMetricsInc(next http.Handler) http.Handler {
 }
 
 func (cfg *apiConfig) countRequestsHandler(w http.ResponseWriter, _ *http.Request) {
-	w.Header().Add("Content-Type", "text/plain; charset=utf-8")
+	w.Header().Add("Content-Type", "text/html; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
-	conc := "Hits: " + strconv.Itoa(cfg.fileserverHits)
-	w.Write([]byte(conc))
+	//conc := "Hits: " + strconv.Itoa(cfg.fileserverHits)
+	fmt.Fprintf(w, `<html>
+<body>
+    <h1>Welcome, Chirpy Admin</h1>
+    <p>Chirpy has been visited %d times!</p>
+</body>
+
+</html>`,
+		cfg.fileserverHits)
 }
 
 func (cfg *apiConfig) resetHandler(w http.ResponseWriter, _ *http.Request) {
@@ -41,8 +48,9 @@ func main() {
 	mdwHandler := cfg.middlewareMetricsInc(http.FileServer(http.Dir(filepathRoot)))
 	mux.Handle("/app/", http.StripPrefix("/app", mdwHandler))
 	mux.HandleFunc("GET /api/healthz", handlerReadiness)
-	mux.HandleFunc("GET /api/metrics", cfg.countRequestsHandler)
+	mux.HandleFunc("GET /admin/metrics", cfg.countRequestsHandler)
 	mux.HandleFunc("GET /api/reset", cfg.resetHandler)
+	mux.HandleFunc("POST /api/validate_chirp", validateHandler)
 
 	srv := &http.Server{
 		Addr:    ":" + port,
