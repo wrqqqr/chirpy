@@ -8,7 +8,6 @@ import (
 
 type apiConfig struct {
 	fileserverHits int
-	nextId         int
 	DB             *database.DB
 }
 
@@ -35,6 +34,9 @@ func main() {
 	mux.HandleFunc("GET /api/reset", cfg.resetHandler)
 	mux.HandleFunc("POST /api/chirps", cfg.handlerChirpsCreate)
 	mux.HandleFunc("GET /api/chirps", cfg.handlerChirpsRetrieve)
+	mux.HandleFunc("POST /api/users", cfg.handlerUsers)
+	mux.HandleFunc("GET /api/chirps/{id}", cfg.handlerChirpsGetOne)
+	mux.HandleFunc("POST /api/login", cfg.handlerLogin)
 	database.NewDB("database.json")
 	srv := &http.Server{
 		Addr:    ":" + port,
